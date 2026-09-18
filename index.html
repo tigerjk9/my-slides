@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>우리 반 독서 습관 만들기</title>
+<meta name="description" content="학부모 설명회 자료">
+<style>
+  :root { --bg:#1E1B2E; --panel:#2A2640; --ink:#F4F2F8; --ink-2:#B8B2CC; --ink-3:#7C74A8;
+          --purple:#6256A2; --magenta:#E75297; --line:rgba(255,255,255,.08); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; }
+  body { background:var(--bg); color:var(--ink-2); overflow:hidden;
+         font-family:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',sans-serif;
+         word-break:keep-all; }
+
+  /* 상단 바 */
+  .bar { position:fixed; top:0; left:0; right:0; height:52px; z-index:20;
+         background:rgba(30,27,46,.92); backdrop-filter:blur(8px);
+         border-bottom:1px solid var(--line);
+         display:flex; align-items:center; gap:12px; padding:0 14px; }
+  .bar .title { font-size:14px; font-weight:700; color:var(--ink);
+                white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; }
+  .bar .meta { font-size:11.5px; color:var(--ink-3); white-space:nowrap; }
+  .bar button { background:transparent; border:1px solid var(--line); color:var(--ink-2);
+                border-radius:8px; padding:6px 11px; font:inherit; font-size:12px;
+                cursor:pointer; white-space:nowrap; }
+  .bar button:hover { background:var(--panel); color:var(--ink); }
+
+  /* 슬라이드 무대 — 16:9 를 화면에 맞춘다 */
+  .stage { position:fixed; inset:52px 0 46px; display:flex;
+           align-items:center; justify-content:center; padding:14px; }
+  .frame { position:relative; width:100%; max-width:calc((100vh - 130px) * 16 / 9);
+           aspect-ratio:16/9; background:#fff; border-radius:10px; overflow:hidden;
+           box-shadow:0 14px 48px rgba(0,0,0,.45); }
+  .frame iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+
+  /* 하단 바 */
+  .foot { position:fixed; bottom:0; left:0; right:0; height:46px; z-index:20;
+          background:rgba(30,27,46,.92); backdrop-filter:blur(8px);
+          border-top:1px solid var(--line);
+          display:flex; align-items:center; gap:10px; padding:0 14px; }
+  .foot .nav { display:flex; gap:6px; }
+  .foot .page { font-size:12.5px; color:var(--ink-2); min-width:62px; text-align:center;
+                font-variant-numeric:tabular-nums; }
+  .foot .cap { font-size:12px; color:var(--ink-3); flex:1;
+               white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .foot button { background:var(--panel); border:1px solid var(--line); color:var(--ink);
+                 border-radius:8px; width:34px; height:30px; font-size:15px; cursor:pointer; }
+  .foot button:hover { background:var(--purple); }
+  .progress { position:fixed; bottom:46px; left:0; height:2px; background:var(--magenta);
+              z-index:21; transition:width .2s ease; }
+
+  /* 목차 */
+  .toc { position:fixed; inset:0; z-index:30; background:rgba(20,18,32,.97);
+         padding:70px 20px 24px; overflow:auto; display:none; }
+  .toc.open { display:block; }
+  .toc h2 { color:var(--ink); font-size:17px; margin-bottom:16px; text-align:center; }
+  .toc-grid { max-width:760px; margin:0 auto; display:flex; flex-direction:column; gap:7px; }
+  .toc-item { display:flex; align-items:center; gap:14px; width:100%; text-align:left;
+              background:var(--panel); border:1px solid var(--line); border-radius:10px;
+              padding:12px 15px; color:var(--ink-2); font:inherit; cursor:pointer; }
+  .toc-item:hover { border-color:var(--purple); color:var(--ink); }
+  .toc-item.now { border-color:var(--magenta); }
+  .toc-item .n { color:var(--ink-3); font-size:12.5px; font-weight:700;
+                 font-variant-numeric:tabular-nums; }
+  .toc-item .t { font-size:13.5px; }
+
+  /* QR */
+  .qr { position:fixed; inset:0; z-index:40; background:rgba(20,18,32,.97);
+        display:none; align-items:center; justify-content:center; flex-direction:column; gap:16px; }
+  .qr.open { display:flex; }
+  .qr .box { background:#fff; padding:18px; border-radius:14px; }
+  .qr .box img { display:block; width:232px; height:232px; }
+  .qr p { color:var(--ink-2); font-size:13.5px; text-align:center; }
+  .qr code { color:var(--ink-3); font-size:12px; word-break:break-all; max-width:320px;
+             display:block; margin-top:6px; }
+
+  @media (max-width:640px) {
+    .bar .meta { display:none; }
+    .stage { inset:52px 0 46px; padding:8px; }
+    .foot .cap { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <span class="title">우리 반 독서 습관 만들기</span>
+  <span class="meta">3학년 2반 담임 · 2026년 10월</span>
+  <button id="btn-toc">목차</button>
+  <button id="btn-qr">QR</button>
+  <button id="btn-full">전체화면</button>
+</div>
+
+<div class="stage">
+  <div class="frame"><iframe id="slide" title="슬라이드"></iframe></div>
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="foot">
+  <div class="nav">
+    <button id="btn-prev" aria-label="이전">‹</button>
+    <button id="btn-next" aria-label="다음">›</button>
+  </div>
+  <span class="page" id="page">1 / 5</span>
+  <span class="cap" id="cap"></span>
+</div>
+
+<div class="toc" id="toc">
+  <h2>목차</h2>
+  <div class="toc-grid">
+      <button class="toc-item" data-go="0">
+        <span class="n">01</span>
+        <span class="t">우리 반 독서 습관 만들기</span>
+      </button>
+      <button class="toc-item" data-go="1">
+        <span class="n">02</span>
+        <span class="t">왜 지금 독서 습관인가</span>
+      </button>
+      <button class="toc-item" data-go="2">
+        <span class="n">03</span>
+        <span class="t">하루 10분, 세 가지 약속</span>
+      </button>
+      <button class="toc-item" data-go="3">
+        <span class="n">04</span>
+        <span class="t">1년이면 3,650분</span>
+      </button>
+      <button class="toc-item" data-go="4">
+        <span class="n">05</span>
+        <span class="t">가정에서 해주실 일</span>
+      </button>
+  </div>
+</div>
+
+<div class="qr" id="qr">
+  <div class="box"><img id="qr-img" alt="이 발표자료 주소 QR"></div>
+  <p>휴대폰으로 찍으면 같은 자료가 열립니다<code id="qr-url"></code></p>
+</div>
+
+<script src="vendor/qrcode.js"></script>
+<script>
+const SLIDES = [{"f":"slides/01-표지.html","t":"우리 반 독서 습관 만들기"},{"f":"slides/02-왜지금.html","t":"왜 지금 독서 습관인가"},{"f":"slides/03-하루10분.html","t":"하루 10분, 세 가지 약속"},{"f":"slides/04-숫자.html","t":"1년이면 3,650분"},{"f":"slides/05-가정에서.html","t":"가정에서 해주실 일"}];
+let i = 0;
+
+const $ = id => document.getElementById(id);
+function show(n) {
+  i = Math.max(0, Math.min(SLIDES.length - 1, n));
+  $('slide').src = SLIDES[i].f;
+  $('page').textContent = (i + 1) + ' / ' + SLIDES.length;
+  $('cap').textContent = SLIDES[i].t;
+  $('progress').style.width = ((i + 1) / SLIDES.length * 100) + '%';
+  document.querySelectorAll('.toc-item').forEach((el, k) => el.classList.toggle('now', k === i));
+  location.hash = '#' + (i + 1);
+}
+
+$('btn-prev').onclick = () => show(i - 1);
+$('btn-next').onclick = () => show(i + 1);
+$('btn-toc').onclick = () => $('toc').classList.toggle('open');
+$('btn-full').onclick = () => document.fullscreenElement
+  ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+
+document.querySelectorAll('.toc-item').forEach(el => {
+  el.onclick = () => { show(Number(el.dataset.go)); $('toc').classList.remove('open'); };
+});
+
+// 오버레이는 바깥을 눌러도 닫힌다. 안 그러면 화면을 덮은 채로 버튼을 못 누른다.
+$('toc').onclick = e => { if (e.target === $('toc')) $('toc').classList.remove('open'); };
+$('qr').onclick = () => $('qr').classList.remove('open');
+
+// QR — 페이지가 스스로 자기 주소를 담는다. 저장소 이름이 바뀌어도 맞는다.
+$('btn-qr').onclick = () => {
+  const box = $('qr');
+  if (!box.classList.contains('open')) {
+    const url = location.href.split('#')[0];
+    const q = qrcode(0, 'M');
+    q.addData(url); q.make();
+    $('qr-img').src = q.createDataURL(6, 8);
+    $('qr-url').textContent = url;
+  }
+  box.classList.toggle('open');
+};
+
+addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); show(i + 1); }
+  else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(i - 1); }
+  else if (e.key === 'Home') show(0);
+  else if (e.key === 'End') show(SLIDES.length - 1);
+  else if (e.key === 'Escape') { $('toc').classList.remove('open'); $('qr').classList.remove('open'); }
+  else if (e.key.toLowerCase() === 't') $('btn-toc').click();
+});
+
+// 휴대폰 스와이프
+let x0 = null;
+addEventListener('touchstart', e => { x0 = e.changedTouches[0].clientX; }, { passive: true });
+addEventListener('touchend', e => {
+  if (x0 === null) return;
+  const dx = e.changedTouches[0].clientX - x0;
+  if (Math.abs(dx) > 55) show(i + (dx < 0 ? 1 : -1));
+  x0 = null;
+}, { passive: true });
+
+show(Number(location.hash.slice(1)) - 1 || 0);
+</script>
+</body>
+</html>
