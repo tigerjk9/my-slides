@@ -103,7 +103,7 @@
     <button id="btn-prev" aria-label="이전">‹</button>
     <button id="btn-next" aria-label="다음">›</button>
   </div>
-  <span class="page" id="page">1 / 5</span>
+  <span class="page" id="page">1 / 6</span>
   <span class="cap" id="cap"></span>
 </div>
 
@@ -130,6 +130,10 @@
         <span class="n">05</span>
         <span class="t">가정에서 해주실 일</span>
       </button>
+      <button class="toc-item" data-go="5">
+        <span class="n">06</span>
+        <span class="t">오늘 부탁드린 세 가지</span>
+      </button>
   </div>
 </div>
 
@@ -140,7 +144,7 @@
 
 <script src="vendor/qrcode.js"></script>
 <script>
-const SLIDES = [{"f":"slides/01-표지.html","t":"우리 반 독서 습관 만들기"},{"f":"slides/02-왜지금.html","t":"왜 지금 독서 습관인가"},{"f":"slides/03-하루10분.html","t":"하루 10분, 세 가지 약속"},{"f":"slides/04-숫자.html","t":"1년이면 3,650분"},{"f":"slides/05-가정에서.html","t":"가정에서 해주실 일"}];
+const SLIDES = [{"f":"slides/01-표지.html","t":"우리 반 독서 습관 만들기"},{"f":"slides/02-왜지금.html","t":"왜 지금 독서 습관인가"},{"f":"slides/03-하루10분.html","t":"하루 10분, 세 가지 약속"},{"f":"slides/04-숫자.html","t":"1년이면 3,650분"},{"f":"slides/05-가정에서.html","t":"가정에서 해주실 일"},{"f":"slides/06-마무리.html","t":"오늘 부탁드린 세 가지"}];
 let i = 0;
 
 const $ = id => document.getElementById(id);
